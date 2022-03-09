@@ -1,0 +1,27 @@
+#root {
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+
+  display: flex;
+  flex-direction: column;
+
+  & > header,
+  & > footer {
+    flex-shrink: 0;
+  }
+
+  & > main {
+    flex-grow: 1;
+    flex-shrink: 1;
+    position: relative;
+
+    .sigma-container {
+      position: absolute;
+      inset: 0;
+    }
+  }
+}
