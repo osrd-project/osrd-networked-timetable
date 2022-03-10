@@ -9,7 +9,12 @@ const GraphContainer: FC = () => {
   const dataset = useContext(DataContext);
 
   return (
-    <SigmaContainer graph={dataset.graph}>
+    <SigmaContainer
+      graph={dataset.graph}
+      initialSettings={{
+        zIndex: true,
+      }}
+    >
       <EventsController />
       <SettingsController />
     </SigmaContainer>

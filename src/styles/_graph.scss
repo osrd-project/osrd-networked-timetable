@@ -1,0 +1,35 @@
+main.graph-page {
+  flex-grow: 1;
+  flex-shrink: 1;
+
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: stretch;
+  height: 100%;
+
+  .react-sigma {
+    position: relative;
+    flex-grow: 1;
+  }
+
+  .side-panel {
+    flex-shrink: 0;
+    height: 100%;
+    overflow-y: auto;
+
+    @extend .p-3;
+
+    @include media-breakpoint-up(md) {
+      width: 400px;
+      border-left: $border;
+    }
+    @include media-breakpoint-down(md) {
+      width: 100%;
+    }
+  }
+
+  .sigma-container {
+    position: absolute;
+    inset: 0;
+  }
+}

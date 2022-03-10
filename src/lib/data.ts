@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { isArray, isNil, isPlainObject, pick } from "lodash";
-import Graph from "graphology";
 import { NodeDisplayData } from "sigma/types";
+import Graph from "graphology";
+
 import project from "../utils/project";
-import { DEFAULT_EDGE_COLOR, DEFAULT_NODE_COLOR } from "../consts";
+import { DEFAULT_EDGE_COLOR, DEFAULT_NODE_COLOR, MAX_EDGE_SIZE, MAX_NODE_SIZE } from "../consts";
 
 const TRAIN_STOP_KEYS = ["uic", "lat", "lon"] as const;
 const TRAIN_STOP_NULLABLE_KEYS = ["pk", "code", "localite", "ligne", "debut", "fin", "etape"] as const;
@@ -44,6 +45,7 @@ export function prepareData(object: unknown): Dataset {
     stops: {},
     graph: new Graph<GraphNode, GraphEdge>({ multi: true, type: "directed", allowSelfLoops: true }),
   };
+
   const collection = object as Record<string, unknown>;
   for (const pathId in collection) {
     if (!collection.hasOwnProperty(pathId)) continue;
@@ -142,14 +144,32 @@ export function prepareData(object: unknown): Dataset {
     };
   }
 
-  // Set degrees as node sizes:
+  // Set crossing paths count as node sizes:
   dataset.graph.forEachNode((node) => {
-    dataset.graph.setNodeAttribute(node, "size", dataset.graph.degree(node) / 5);
+    dataset.graph.setNodeAttribute(node, "size", dataset.stops[node].pathIds.length);
   });
 
   // Set paths count as edge sizes:
   dataset.graph.forEachEdge((edge, attr) => {
-    dataset.graph.setEdgeAttribute(edge, "size", attr.pathIdsSet.size);
+    dataset.graph.setEdgeAttribute(edge, "size", Math.log(attr.pathIdsSet.size));
+  });
+
+  // Compute max values:
+  let maxNodeSize = -Infinity;
+  let maxEdgeSize = -Infinity;
+  dataset.graph.forEachNode((_, attr) => {
+    if (attr.size > maxNodeSize) maxNodeSize = attr.size;
+  });
+  dataset.graph.forEachEdge((_, attr) => {
+    if (attr.size > maxEdgeSize) maxEdgeSize = attr.size;
+  });
+
+  // Adjust sizes accordingly:
+  dataset.graph.forEachNode((node, attr) => {
+    dataset.graph.setNodeAttribute(node, "size", (attr.size * MAX_NODE_SIZE) / maxNodeSize);
+  });
+  dataset.graph.forEachEdge((edge, attr) => {
+    dataset.graph.setEdgeAttribute(edge, "size", (attr.size * MAX_EDGE_SIZE) / maxEdgeSize);
   });
 
   return dataset;

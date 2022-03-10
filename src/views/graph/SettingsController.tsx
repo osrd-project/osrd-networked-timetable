@@ -12,8 +12,8 @@ const SettingsController: FC = () => {
     if (!state.selection && !state.hoveredNode && !state.hoveredEdge) return null;
     const res: Highlights = {};
 
-    if (state.selection?.type === "paths") res.pathIds = state.selection.ids;
-    if (state.selection?.type === "stops") res.stopIds = state.selection.ids;
+    if (state.selection?.type === "path") res.pathIds = state.selection.ids;
+    if (state.selection?.type === "stop") res.stopIds = state.selection.ids;
     if (state.hoveredNode) res.stopIds = (res.stopIds || []).concat(state.hoveredNode);
     if (state.hoveredEdge)
       res.pathIds = (res.pathIds || []).concat(
