@@ -37,7 +37,8 @@
     "lint": "eslint --ext ts,tsx src",
     "clean": "prettier --write src",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "data:import": "node -r ts-node/register scripts/run.ts"
   },
   "eslintConfig": {
     "extends": [
@@ -56,5 +57,10 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "gtfs": "^3.2.4",
+    "sqlite": "^4.0.25",
+    "ts-node": "^10.7.0"
   }
 }
