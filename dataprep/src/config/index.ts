@@ -2,6 +2,7 @@ export * from "./dbSchema";
 
 export const config = {
   sqlitePath: "../sqlite.db",
-  importPath: "./import",
-  exportPath: "../client/public/exports",
+  importPath: process.env.DATAPREP_IMPORT_FOLDER || "./import",
+  exportPath: process.env.DATAPREP_EXPORT_FOLDER || "../client/public/exports",
+  exportOnly: process.env.DATAPREP_EXPORT_ONLY ? JSON.parse(process.env.DATAPREP_EXPORT_ONLY) : false,
 };

@@ -9,7 +9,7 @@ export class Sqlite {
   private static _instance: Sqlite;
   private _db: Database | null = null;
 
-  static async getInstance() {
+  static async getInstance(): Promise<Sqlite> {
     if (this._instance) {
       return this._instance;
     }

@@ -30,6 +30,7 @@
     "compile": "tsc -b",
     "build": "npm run clean && npm run lint && npm run compile",
     "start": "concurrently -n lint,compile \"npm run lint -- --watch\" \"npm run compile -- --watch\"",
-    "generate": "ts-node ./src/index.ts"
+    "data:generate": "DATAPREP_EXPORT_ONLY=false ts-node ./src/index.ts",
+    "data:export": "DATAPREP_EXPORT_ONLY=true ts-node ./src/index.ts"
   }
 }
