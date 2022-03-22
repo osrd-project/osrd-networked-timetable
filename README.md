@@ -4,7 +4,7 @@ An application to display GTFS files
 
 ## Dataprep
 
-Generate some JSON files for the client from GTFS files : `npm run data:import`
+Generate some JSON files for the client from GTFS files : `npm run generate`
 It imports all GTFS files from the "import" folder.
 
 For example, to have the complete SNCF network, you can
@@ -18,7 +18,7 @@ For example, to have the complete SNCF network, you can
 
 2. Put them into the import folder
 
-3. Execute the following command : `npm run data:import`
+3. Execute the following command : `npm run generate`
 
 At this step, all needed files for the client are generated, so you can start to use it
 

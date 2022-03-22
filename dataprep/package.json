@@ -30,6 +30,6 @@
     "compile": "tsc -b",
     "build": "npm run clean && npm run lint && npm run compile",
     "start": "concurrently -n lint,compile \"npm run lint -- --watch\" \"npm run compile -- --watch\"",
-    "data:import": "ts-node ./src/run.ts"
+    "generate": "ts-node ./src/index.ts"
   }
 }
