@@ -3,13 +3,13 @@ export const dbSchema = `
   CREATE TABLE feed_info (
     feed_id             text PRIMARY KEY,
     feed_publisher_name text NOT NULL,
-    feed_publisher_url  text NOT NULL,
-    feed_lang           text NOT NULL,
-    feed_start_date     text NOT NULL,
-    feed_end_date       text NOT NULL,
-    feed_version        text NOT NULL,
-    conv_rev            text NOT NULL,
-    plan_rev            text NOT NULL
+    feed_publisher_url  text,
+    feed_lang           text,
+    feed_start_date     text,
+    feed_end_date       text,
+    feed_version        text,
+    conv_rev            text,
+    plan_rev            text
   );
 
   DROP TABLE IF EXISTS agency;
@@ -60,65 +60,65 @@ export const dbSchema = `
 
   DROP TABLE IF EXISTS stops;
   CREATE TABLE stops (
-    stop_id text PRIMARY KEY,
-    stop_code text,
-    stop_name text NOT NULL,
-    stop_desc text NOT NULL,
-    stop_lon double precision NOT NULL,
-    stop_lat double precision NOT NULL,
-    zone_id text NOT NULL,
-    stop_url text NOT NULL,
-    location_type boolean NOT NULL,
-    parent_station text NOT NULL,
-    stop_timezone text,
-    level_id text,
+    stop_id             text PRIMARY KEY,
+    stop_code           text,
+    stop_name           text NOT NULL,
+    stop_desc           text,
+    stop_lon            double precision NOT NULL,
+    stop_lat            double precision NOT NULL,
+    zone_id             text,
+    stop_url            text,
+    location_type       boolean NOT NULL,
+    parent_station      text,
+    stop_timezone       text,
+    level_id            text,
     wheelchair_boarding boolean,
-    platform_code text
+    platform_code       text
   );
 
   DROP TABLE IF EXISTS stop_times;
   CREATE TABLE stop_times (
-    trip_id text NOT NULL,
-    arrival_time text NOT NULL,
-    departure_time text NOT NULL,
-    stop_id text NOT NULL,
-    stop_sequence text NOT NULL,
-    pickup_type text NOT NULL,
-    drop_off_type text NOT NULL,
-    local_zone_id text,
-    stop_headsign text NOT NULL,
-    timepoint text,
-    shape_dist_traveled text
+    trip_id               text NOT NULL,
+    arrival_time          text NOT NULL,
+    departure_time        text NOT NULL,
+    stop_id               text NOT NULL,
+    stop_sequence         integer NOT NULL,
+    pickup_type           text NOT NULL,
+    drop_off_type         text NOT NULL,
+    local_zone_id         text,
+    stop_headsign         text,
+    timepoint             text,
+    shape_dist_traveled   text
   );
 
   DROP TABLE IF EXISTS stop_extensions;
   CREATE TABLE stop_extensions (
-    object_id TEXT NOT NULL,
+    object_id     TEXT NOT NULL,
     object_system TEXT NOT NULL,
-    object_code TEXT NOT NULL
+    object_code   TEXT NOT NULL
   );
 
   DROP TABLE IF EXISTS transfers;
   CREATE TABLE transfers (
-    from_stop_id TEXT NOT NULL,
-    to_stop_id TEXT NOT NULL,
-    transfer_type TEXT NOT NULL,
+    from_stop_id      TEXT NOT NULL,
+    to_stop_id        TEXT NOT NULL,
+    transfer_type     TEXT NOT NULL,
     min_transfer_time integer NOT NULL,
-    from_route_id TEXT NOT NULL,
-    to_route_id TEXT NOT NULL
+    from_route_id     TEXT,
+    to_route_id       TEXT
   );
 
   DROP TABLE IF EXISTS trips;
   CREATE TABLE trips (
-    route_id TEXT NOT NULL,
-    service_id TEXT NOT NULL,
-    trip_id TEXT PRIMARY KEY,
-    trip_headsign TEXT NOT NULL,
-    trip_short_name TEXT,
-    direction_id TEXT NOT NULL,
-    block_id TEXT NOT NULL,
-    shape_id TEXT,
+    trip_id               TEXT PRIMARY KEY,
+    route_id              TEXT NOT NULL,
+    service_id            TEXT NOT NULL,
+    trip_headsign         TEXT,
+    trip_short_name       TEXT,
+    direction_id          TEXT,
+    block_id              TEXT,
+    shape_id              TEXT,
     wheelchair_accessible BOOLEAN,
-    bikes_allowed BOOLEAN
+    bikes_allowed         BOOLEAN
   );
 `;

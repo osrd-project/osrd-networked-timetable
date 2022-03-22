@@ -1,4 +1,5 @@
-export const DATASET_PATH = process.env.PUBLIC_URL + "/raw-dataset.json";
+// export const DATASET_PATH = process.env.PUBLIC_URL + "/raw-dataset.json";
+export const DATASET_PATH = process.env.PUBLIC_URL + "/data/stopsNetwork.json";
 
 // Graph rendering:
 export const DEFAULT_NODE_COLOR = "#aaa";

@@ -38,20 +38,34 @@ export class Sqlite {
   async loadCsvInTable(csv: string, table: string): Promise<void> {
     if (fs.existsSync(csv)) {
       const file = fs.readFileSync(csv, "utf-8");
-      const result = await Papa.parse<Array<any>>(file, { delimiter: "," });
+      const result = await Papa.parse<{ [key: string]: unknown }>(file, {
+        delimiter: ",",
+        dynamicTyping: (column: string | number) => (column === "trip_id" ? false : true),
+        skipEmptyLines: true,
+        header: true,
+      });
 
-      const query = `
-        INSERT OR IGNORE INTO ${table}(${result.data[0].map((e) => `\`${e}\``).join(",")})
-        VALUES ${result.data.slice(1, -1).map((row) => `(${row.map((e) => `"${e.replaceAll('"', '""')}"`).join(",")})`)}
-      `;
+      if (result.meta.fields) {
+        const query = `
+        INSERT OR REPLACE  INTO ${table}(${result.meta.fields.map((e) => `\`${e}\``).join(",")})
+        VALUES ${result.data.map(
+          (row) =>
+            `(${Object.values(row)
+              .map((v) => {
+                const value = JSON.stringify(v).replaceAll('\\"', '""');
+                return value;
+              })
+              .join(", ")})`,
+        )}`;
 
-      try {
-        const stats = await this.db().run(query);
-        console.log(`Importing ${stats.changes} into table ${table}`);
-      } catch (e) {
-        console.log(query);
-        console.log(e);
-        throw e;
+        try {
+          const stats = await this.db().run(query);
+          console.log(`Importing ${stats.changes} into table ${table}`);
+        } catch (e) {
+          console.log(query);
+          console.log(e);
+          throw e;
+        }
       }
     }
   }
