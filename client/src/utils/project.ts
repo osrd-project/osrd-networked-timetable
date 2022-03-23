@@ -5,7 +5,7 @@ const merc = new SphericalMercator({
   size: 256,
 });
 
-export default function project({ lat, lon }: { lat: number; lon: number }): Coordinates {
-  const [x, y] = merc.px([lon, lat], 10);
+export default function project({ lat, lng }: { lat: number; lng: number }): Coordinates {
+  const [x, y] = merc.px([lng, lat], 10);
   return { x, y: -y };
 }

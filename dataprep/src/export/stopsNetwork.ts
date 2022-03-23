@@ -1,7 +1,7 @@
 import Graph from "graphology";
 
 import { Sqlite } from "../sqlite";
-import { writeFile, writeCsv } from "./utils";
+import { writeCsv } from "./utils";
 
 export async function exportStopsNetwork(): Promise<void> {
   const sqlite = await Sqlite.getInstance();
@@ -22,30 +22,56 @@ export async function exportStopsNetwork(): Promise<void> {
     graph.addNode(stop.id, stop);
   });
 
-  const trips = await sqlite.db().all(`
+  const routes = await sqlite.db().all(`
+    WITH stops_by_trip_with_index as (
+      SELECT
+          t.route_id as route_id,
+      		COALESCE(s.parent_station, s.stop_id) as stop_id,
+      		st.stop_sequence as stop_sequence,
+      		t.trip_id as trip_id,
+      		ROW_NUMBER() OVER(PARTITION BY t.route_id, s.stop_id , st.stop_sequence ORDER BY t.route_id , s.stop_id, st.stop_sequence ) AS row_number
+          FROM
+          	stop_times st
+      			LEFT JOIN stops s ON st.stop_id = s.stop_id
+      			LEFT JOIN trips t ON st.trip_id = t.trip_id
+          ORDER BY
+          	t.route_id ASC,
+      		s.stop_name ,
+          	st.stop_sequence ASC
+    )
     SELECT
-    	trip_id as id,
-    	group_concat( COALESCE(s.parent_station, s.stop_id), "|" )  as stops
-    FROM
-    	stop_times st LEFT JOIN stops s ON st.stop_id = s.stop_id
-    GROUP BY trip_id
-    ORDER BY
-    	st.trip_id ASC,
-    	st.stop_sequence ASC
+      route_id as id,
+      group_concat(stop_id, "|") AS stops,
+      nb
+    FROM(
+      SELECT
+      	 route_id,
+      	 stop_id,
+      	 MAX(row_number) as nb
+      FROM
+      	stops_by_trip_with_index
+      GROUP BY route_id, stop_id, stop_sequence
+      ORDER BY route_id, trip_id, stop_sequence
+    )
+    GROUP BY route_id
   `);
-  trips.forEach((trip) => {
-    const stops: Array<string> = trip.stops.split("|");
+  routes.forEach((route) => {
+    const stops: Array<string> = route.stops.split("|");
     if (stops.length > 1) {
       let prev = stops[0];
       stops.slice(1).forEach((stop: string) => {
         const edgeKey = `${prev}->${stop}`;
         if (!graph.hasEdge(edgeKey)) {
           graph.addEdgeWithKey(edgeKey, prev, stop, {
-            trips: [trip.id],
+            routes: [route.id],
+            frequency: route.nb,
           });
         } else {
-          graph.updateEdgeAttribute(edgeKey, "trips", (ids) => {
-            return [...ids, trip.id];
+          graph.updateEdgeAttributes(edgeKey, (attr) => {
+            return {
+              routes: [...attr.routes, route.id],
+              frequency: attr.frequency + route.nb,
+            };
           });
         }
         prev = stop;
@@ -62,9 +88,8 @@ export async function exportStopsNetwork(): Promise<void> {
       id: edge,
       source,
       target,
-      trips: attributes.trips,
+      ...attributes,
     })),
     "stopsNetwork-edges.csv",
   );
-  await writeFile(JSON.stringify(graph.export()), "stopsNetwork.json");
 }

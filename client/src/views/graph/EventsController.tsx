@@ -27,7 +27,7 @@ const EventsController: FC = () => {
         setState((state) => {
           const selection = state.selection;
 
-          if (!selection || selection.type === "path") {
+          if (!selection || selection.type === "route") {
             return { ...state, selection: { type: "stop", ids: [node] } };
           } else if (selection.ids.includes(node)) {
             return { ...state, selection: { type: "stop", ids: selection.ids.filter((id) => id !== node) } };
@@ -39,17 +39,17 @@ const EventsController: FC = () => {
       clickEdge({ edge }) {
         setState((state) => {
           const selection = state.selection;
-          const ids = Array.from(graph.getEdgeAttribute(edge, "pathIdsSet"));
+          const ids = Array.from(graph.getEdgeAttribute(edge, "routes"));
 
           if (!selection || selection.type === "stop") {
-            return { ...state, selection: { type: "path", ids } };
+            return { ...state, selection: { type: "route", ids } };
           } else {
             const selectionIdsSet = new Set(selection.ids);
 
             if (ids.every((id) => selectionIdsSet.has(id))) {
-              return { ...state, selection: { type: "path", ids: pull(selection.ids, ...ids).slice(0) } };
+              return { ...state, selection: { type: "route", ids: pull(selection.ids, ...ids).slice(0) } };
             } else {
-              return { ...state, selection: { type: "path", ids: uniq(selection.ids.concat(ids)) } };
+              return { ...state, selection: { type: "route", ids: uniq(selection.ids.concat(ids)) } };
             }
           }
         });

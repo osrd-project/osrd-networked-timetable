@@ -1,13 +1,12 @@
 import React, { FC } from "react";
 
 import { useData } from "../lib/data";
-import { DATASET_PATH } from "../consts";
 import { LoaderFill } from "../components/Loader";
 import { DataContext } from "../lib/context";
 import Routing from "./Routing";
 
 const App: FC = () => {
-  const dataState = useData(DATASET_PATH);
+  const dataState = useData();
 
   if (dataState.type === "idle" || dataState.type === "loading") return <LoaderFill />;
   if (dataState.type === "error")

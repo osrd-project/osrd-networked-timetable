@@ -1,100 +1,77 @@
 import { useEffect, useState } from "react";
-import { NodeDisplayData } from "sigma/types";
+import { NodeDisplayData, EdgeDisplayData } from "sigma/types";
 import Graph from "graphology";
+import * as Papa from "papaparse";
 
 import project from "../utils/project";
-import { DEFAULT_EDGE_COLOR, DEFAULT_NODE_COLOR, MAX_EDGE_SIZE, MAX_NODE_SIZE } from "../consts";
-const TRAIN_STOP_NULLABLE_KEYS = ["pk", "code", "localite", "ligne", "debut", "fin", "etape"] as const;
-export type TrainStop = {
-  [KEY in typeof TRAIN_STOP_NULLABLE_KEYS[number]]?: string | null;
-} & {
-  id: string;
-  lat: number;
-  lon: number;
-  pathIds: string[];
-};
-export interface TrainPath {
-  id: string;
-  stopIds: string[];
-  stopIdsSet: Set<string>;
-}
+import { DATASET_NODES_PATH, DATASET_EDGES_PATH, DEFAULT_EDGE_COLOR, DEFAULT_NODE_COLOR, MAX_EDGE_SIZE, MAX_NODE_SIZE } from "../consts";
 
-export interface GraphNode extends Pick<NodeDisplayData, "label" | "x" | "y" | "size" | "color"> {
-  stopId: string;
-}
-export interface GraphEdge {
-  pathIdsSet: Set<string>;
-  size: number;
-  color: string;
+export type GraphNode = Pick<NodeDisplayData, "label" | "x" | "y" | "size" | "color"> & { id: string, routes: Set<string> };
+export type GraphEdge = Pick<EdgeDisplayData, "size" | "color"> & { routes: Set<string> };
+
+function downloadDataAnParseCsv<T>(url: string): Promise<Array<T>> {
+  return new Promise((resolve, reject) => {
+    Papa.parse<T>(url, {
+      download: true,
+      delimiter: ",",
+      dynamicTyping: true,
+      skipEmptyLines: true,
+      header: true,
+      error: (e) => reject(e),
+      complete: (result) => resolve(result.data),
+    });
+  });
 }
 
 export interface Dataset {
-  paths: Record<string, TrainPath>;
-  stops: Record<string, TrainStop>;
   graph: Graph<GraphNode, GraphEdge>;
 }
 
-function prepareData(object: any): Dataset {
-  const dataset: Dataset = {
-    paths: {},
-    stops: {},
-    graph: new Graph<GraphNode, GraphEdge>({ multi: true, type: "directed", allowSelfLoops: true }),
-  };
+async function prepareData(): Promise<Dataset> {
+  const graph = new Graph<GraphNode, GraphEdge>({ multi: true, type: "directed", allowSelfLoops: true });
 
-  const graph = new Graph({ multi: true, type: "directed", allowSelfLoops: true });
-  graph.import(object);
+  // download and parse nodes & edges csv
+  const data = await Promise.all([
+    downloadDataAnParseCsv<any>(DATASET_NODES_PATH),
+    downloadDataAnParseCsv<any>(DATASET_EDGES_PATH),
+  ]);
 
-  graph.forEachNode((node, attr) => {
-    dataset.stops[node] = {
-      id: attr.id,
-      lat: attr.lat,
-      lon: attr.lng,
-      pathIds: Array.from(
-        graph.reduceEdges(
-          node,
-          (acc, _edge, attr) => {
-            attr.trips.forEach((stripId: string) => {
-              acc.add(stripId);
-            });
-            return acc;
-          },
-          new Set<string>([]),
-        ),
-      ),
-    };
-
-    // compute node's attributes
-    graph.replaceNodeAttributes(node, {
-      stopId: attr.id,
-      label: attr.name,
+  // build the graph
+  data[0].forEach((node) => {
+    graph.addNode(node.id, {
+      id: node.id,
+      label: node.name,
       color: DEFAULT_NODE_COLOR,
-      size: dataset.stops[node].pathIds.length,
-      ...project({ lat: attr.lat as number, lon: attr.lng as number }),
+      size: 1,
+      ...project({ lat: node.lat as number, lng: node.lng as number }),
+      routes: new Set()
     });
   });
-  graph.forEachEdge((edge, attr, source, target) => {
-    // compute edge's attributes
-    graph.replaceEdgeAttributes(edge, {
-      pathIdsSet: new Set(attr.trips),
-      size: Math.log(attr.trips.length),
+  data[1].forEach((edge) => {
+    graph.addEdgeWithKey(edge.id, edge.source, edge.target, {
+      routes: new Set<string>(edge.routes),
+      size: Math.log(edge.frequency),
       color: DEFAULT_EDGE_COLOR,
     });
-
-    // compute paths indexe
-    attr.trips.forEach((tripId: string) => {
-      if (!dataset.paths[tripId]) {
-        dataset.paths[tripId] = {
-          id: tripId,
-          stopIds: [],
-          stopIdsSet: new Set<string>([]),
-        };
-      }
-      dataset.paths[tripId].stopIdsSet.add(source);
-      dataset.paths[tripId].stopIdsSet.add(target);
-      dataset.paths[tripId].stopIds = Array.from(dataset.paths[tripId].stopIdsSet);
-    });
   });
 
+  graph.forEachNode((node) => {
+    // Compute nodes size
+    const size = graph.reduceEdges(node, (acc, _edge, attr) => acc + attr.size, 0);
+    graph.setNodeAttribute(node, "size", size);
+
+    // Compute available routes
+    graph.setNodeAttribute(
+      node,
+      "routes",
+      graph.reduceEdges(node, (acc, _edge, attr) => {
+        attr.routes.forEach(routeId => acc.add(routeId));
+        return acc;
+      }, new Set<string>())
+    );
+  });
+
+  //
   // Compute max values:
   let maxNodeSize = -Infinity;
   let maxEdgeSize = -Infinity;
@@ -113,8 +90,7 @@ function prepareData(object: any): Dataset {
     graph.setEdgeAttribute(edge, "size", (attr.size * MAX_EDGE_SIZE) / maxEdgeSize);
   });
 
-  dataset.graph = graph as Graph<GraphNode, GraphEdge>;
-  return dataset;
+  return { graph };
 }
 
 export type IdleState = { type: "idle" };
@@ -123,19 +99,17 @@ export type ErrorState = { type: "error"; error?: Error };
 export type ReadyState = { type: "ready"; dataset: Dataset };
 export type DataState = IdleState | LoadingState | ErrorState | ReadyState;
 
-export function useData(datasetPath: string): DataState {
+export function useData(): DataState {
   const [state, setState] = useState<DataState>({ type: "idle" });
 
   useEffect(() => {
     if (state.type !== "idle") return;
 
     setState({ type: "loading" });
-    fetch(datasetPath)
-      .then((res) => res.json())
-      .then((rawData) => prepareData(rawData))
+    prepareData()
       .then((dataset) => setState({ type: "ready", dataset: dataset }))
       .catch((error) => setState({ type: "error", error }));
-  }, [datasetPath, state.type]);
+  }, [state.type]);
 
   return state;
 }

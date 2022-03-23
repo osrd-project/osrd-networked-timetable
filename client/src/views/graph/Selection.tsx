@@ -1,34 +1,31 @@
 import { pull } from "lodash";
 import React, { FC, useContext } from "react";
 import { DataContext, GraphContext } from "../../lib/context";
-import { TrainPath, TrainStop } from "../../lib/data";
+import { GraphEdge, GraphNode } from "../../lib/data";
 
-const SelectedStop: FC<{ stop: TrainStop }> = ({ stop }) => {
+const SelectedStop: FC<{ stop: GraphNode }> = ({ stop }) => {
   return (
     <>
-      <div className="fw-bold">{stop.localite || stop.id}</div>
+      <div className="fw-bold">{stop.label}</div>
       <div>
-        Crossed by {stop.pathIds.length} path{stop.pathIds.length > 1 ? "s" : ""}
+        Crossed by {stop.routes.size} route{stop.routes.size > 1 ? "s" : ""}
       </div>
     </>
   );
 };
 
-const SelectedPath: FC<{ path: TrainPath }> = ({ path }) => {
+const SelectedPath: FC<{ path: GraphEdge }> = ({ path }) => {
   return (
     <>
-      <div className="fw-bold">{path.id}</div>
-      <div>Stops {path.stopIds.length > 1 ? `${path.stopIds.length} times` : "once"}</div>
+      <div>Crossed by {path.routes.size} route{path.routes.size > 1 ? "s" : ""}</div>
     </>
   );
 };
 
 const Selection: FC = () => {
-  const { stops, paths } = useContext(DataContext);
+  const { graph } = useContext(DataContext);
   const { state, setState } = useContext(GraphContext);
   const selection = state.selection;
-
-  console.log()
 
   if (!selection) return null;
 
@@ -51,7 +48,7 @@ const Selection: FC = () => {
               onChange={() => setState((state) => ({ ...state, selection: { type, ids: pull(ids, id) } }))}
             />
             <label htmlFor={`selection-${type}-${id}`}>
-              {type === "path" ? <SelectedPath path={paths[id]} /> : <SelectedStop stop={stops[id]} />}
+              {type === "route" ? <SelectedPath path={graph.getEdgeAttributes(id)} /> : <SelectedStop stop={graph.getNodeAttributes(id)} />}
             </label>
           </li>
         ))}

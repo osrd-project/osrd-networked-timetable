@@ -25,17 +25,17 @@ const Actions: FC = () => {
           Select all paths crossing {ids.length === 1 ? "this stop" : `these ${ids.length} stops`} instead
         </button>
       )}
-      {type === "path" && !!ids.length && (
+      {type === "route" && !!ids.length && (
         <button
           className="btn btn-outline-primary mb-2"
           onClick={() =>
             setState({ ...state, selection: pathsToStopsSelection(state.selection as Selection, dataset) })
           }
         >
-          Select all stops crossed by {ids.length === 1 ? "this path" : `these ${ids.length} paths`} instead
+          Select all stops crossed by {ids.length === 1 ? "this route" : `these ${ids.length} routes`} instead
         </button>
       )}
-      {type === "path" && !!ids.length && (
+      {type === "route" && !!ids.length && (
         <button className="btn btn-outline-primary mb-2" onClick={() => console.log("TODO")} disabled>
           Show the reticular view
         </button>

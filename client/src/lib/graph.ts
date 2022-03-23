@@ -1,12 +1,12 @@
 import { Settings } from "sigma/settings";
 import { Attributes } from "graphology-types";
+import { uniq } from "lodash";
 
 import { Dataset } from "./data";
 import { GREYED_NODE_COLOR, GREYED_EDGE_COLOR } from "../consts";
-import { forEach, uniq } from "lodash";
 
 export interface Selection {
-  type: "path" | "stop";
+  type: "route" | "stop";
   ids: string[];
 }
 
@@ -18,41 +18,43 @@ export interface GraphState {
 
 export interface Highlights {
   stopIds?: string[];
-  pathIds?: string[];
+  routeIds?: string[];
 }
 
 export function getReducers(
   dataset: Dataset,
   highlight?: Highlights | null,
 ): { node: NonNullable<Settings["nodeReducer"]>; edge: NonNullable<Settings["edgeReducer"]> } {
-  let pathIds: string[] | null = highlight?.pathIds || null;
+  let routeIds: string[] | null = highlight ?.routeIds || null;
   let selectedNodes: Set<string> | null = null;
   let highlightedNodes: Set<string> | null = null;
   let highlightedEdges: Set<string> | null = null;
 
-  if (highlight?.stopIds) {
+  console.log(dataset)
+
+  if (highlight ?.stopIds) {
     highlightedNodes = new Set(highlight.stopIds);
 
-    pathIds = pathIds || [];
-    forEach(dataset.paths, ({ id, stopIdsSet }) => {
-      if (highlight.stopIds!.every((id) => stopIdsSet.has(id))) pathIds!.push(id);
-    });
-    pathIds = uniq(pathIds);
+    routeIds = routeIds || [];
+    // forEach(dataset.paths, ({ id, stopIdsSet }) => {
+    //   if (highlight.stopIds!.every((id) => stopIdsSet.has(id))) pathIds!.push(id);
+    // });
+    routeIds = uniq(routeIds);
 
     selectedNodes = new Set(highlightedNodes);
   }
 
-  if (pathIds) {
+  if (routeIds) {
     highlightedNodes = highlightedNodes || new Set();
     highlightedEdges = new Set();
 
-    dataset.graph.forEachEdge((edge, { pathIdsSet }) => {
-      if (pathIds!.some((id) => pathIdsSet.has(id))) highlightedEdges!.add(edge);
-    });
-    pathIds.forEach((path) => {
-      const stops = dataset.paths[path].stopIds;
-      stops!.forEach((id) => highlightedNodes!.add(id));
-    });
+    // dataset.graph.forEachEdge((edge, { pathIdsSet }) => {
+    //   if (pathIds!.some((id) => pathIdsSet.has(id))) highlightedEdges!.add(edge);
+    // });
+    // pathIds.forEach((path) => {
+    //   const stops = dataset.paths[path].stopIds;
+    //   stops!.forEach((id) => highlightedNodes!.add(id));
+    // });
   }
 
   return {
@@ -85,20 +87,20 @@ export function getReducers(
   };
 }
 
-export function pathsToStopsSelection(selection: Selection, { paths }: Dataset): Selection {
-  if (!selection.ids.length || selection.type !== "path") return selection;
-
+export function pathsToStopsSelection(selection: Selection, dataset: Dataset): Selection {
+  if (!selection.ids.length || selection.type !== "route") return selection;
+  console.log(dataset)
   return {
     type: "stop",
-    ids: uniq(selection.ids.flatMap((id) => paths[id].stopIds)),
+    ids: [] //uniq(selection.ids.flatMap((id) => dataset.paths[id].stopIds)),
   };
 }
 
-export function stopsToPathsSelection(selection: Selection, { stops }: Dataset): Selection {
+export function stopsToPathsSelection(selection: Selection, dataset: Dataset): Selection {
   if (!selection.ids.length || selection.type !== "stop") return selection;
-
+  console.log(dataset)
   return {
-    type: "path",
-    ids: uniq(selection.ids.flatMap((id) => stops[id].pathIds)),
+    type: "route",
+    ids: [] //uniq(selection.ids.flatMap((id) => dataset.stops[id].pathIds)),
   };
 }

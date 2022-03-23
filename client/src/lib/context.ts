@@ -10,8 +10,6 @@ export const AppContext = createContext<{ portalTarget: HTMLDivElement }>({
 });
 
 export const DataContext = createContext<Dataset>({
-  paths: {},
-  stops: {},
   graph: new Graph<GraphNode, GraphEdge>(),
 });
 
