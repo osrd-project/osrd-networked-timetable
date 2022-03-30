@@ -1,7 +1,8 @@
 import Graph from "graphology";
 
 import { Sqlite } from "../sqlite";
-import { writeCsv } from "./utils";
+import { writeCsv } from "../utils";
+import { Stop } from "@reticular/types";
 
 export async function exportStopsNetwork(): Promise<void> {
   const sqlite = await Sqlite.getInstance();
@@ -9,7 +10,7 @@ export async function exportStopsNetwork(): Promise<void> {
   const graph = new Graph();
 
   // Nodes
-  const stops = await sqlite.db().all(`
+  const stops = await sqlite.db().all<Stop[]>(`
     SELECT
       stop_id as id,
       stop_name as name,
@@ -63,13 +64,13 @@ export async function exportStopsNetwork(): Promise<void> {
         const edgeKey = `${prev}->${stop}`;
         if (!graph.hasEdge(edgeKey)) {
           graph.addEdgeWithKey(edgeKey, prev, stop, {
-            routes: [route.id],
+            routeIds: [route.id],
             frequency: route.nb,
           });
         } else {
           graph.updateEdgeAttributes(edgeKey, (attr) => {
             return {
-              routes: [...attr.routes, route.id],
+              routeIds: [...attr.routeIds, route.id],
               frequency: attr.frequency + route.nb,
             };
           });

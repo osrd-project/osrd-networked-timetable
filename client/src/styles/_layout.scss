@@ -1,16 +1,27 @@
-#root {
-  margin: 0;
-  padding: 0;
-  position: absolute;
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
+#app-root {
+  .mastcontainer {
+    background-color: #fff;
+    .actionbar {
+      top: 0;
+      position: relative;
+      width: 100%;
+      margin-bottom: 1em;
+    }
 
-  display: flex;
-  flex-direction: column;
-
-  & > header,
-  & > footer {
-    flex-shrink: 0;
+    > .row {
+      margin: 0;
+      width: 100%;
+    }
+  }
+  .mastfooter {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    z-index: 999;
+    color: #000;
+    text-align: center;
+    p {
+      margin: 0;
+    }
   }
 }

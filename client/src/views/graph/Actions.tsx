@@ -1,47 +1,22 @@
-import React, { FC, useContext } from "react";
-import { DataContext, GraphContext } from "../../lib/context";
-import { pathsToStopsSelection, Selection, stopsToPathsSelection } from "../../lib/graph";
+import React, { FC } from "react";
 
-const Actions: FC = () => {
-  const { state, setState } = useContext(GraphContext);
-  const dataset = useContext(DataContext);
+import { useSelector } from "../../hooks/useSelector";
+import { useAppState } from "../../hooks/useAppState";
 
-  const { ids, type } = state.selection || { ids: [] };
+export const Actions: FC = () => {
+  const { setState } = useAppState();
+  const routeIds = useSelector((s) => s.selection.routeIds);
 
   return (
-    <div className="d-flex flex-column align-items-stretch">
-      {!!ids.length && (
-        <button className="btn btn-outline-primary mb-2" onClick={() => setState({ ...state, selection: null })}>
-          Unselect all {type}s
-        </button>
-      )}
-      {type === "stop" && !!ids.length && (
+    <div>
+      {!!routeIds.length && (
         <button
-          className="btn btn-outline-primary mb-2"
-          onClick={() =>
-            setState({ ...state, selection: stopsToPathsSelection(state.selection as Selection, dataset) })
-          }
+          className="btn btn-outline-light"
+          onClick={() => setState((state) => ({ ...state, selection: { routeIds: [] } }))}
         >
-          Select all paths crossing {ids.length === 1 ? "this stop" : `these ${ids.length} stops`} instead
-        </button>
-      )}
-      {type === "route" && !!ids.length && (
-        <button
-          className="btn btn-outline-primary mb-2"
-          onClick={() =>
-            setState({ ...state, selection: pathsToStopsSelection(state.selection as Selection, dataset) })
-          }
-        >
-          Select all stops crossed by {ids.length === 1 ? "this route" : `these ${ids.length} routes`} instead
-        </button>
-      )}
-      {type === "route" && !!ids.length && (
-        <button className="btn btn-outline-primary mb-2" onClick={() => console.log("TODO")} disabled>
-          Show the reticular view
+          Unselect all routes
         </button>
       )}
     </div>
   );
 };
-
-export default Actions;

@@ -2,7 +2,12 @@
   "extends": "./tsconfig.base.json",
   "include": ["./src"],
   "compilerOptions": {
+    "declaration": true,
     "rootDir": "./src",
-    "outDir": "./lib"
+    "outDir": "./lib",
+    "declarationDir": "./lib",
+    "paths": {
+      "@reticular/types": ["./types.d.ts"]
+    }
   }
 }

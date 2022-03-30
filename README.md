@@ -2,6 +2,8 @@
 
 An application to display GTFS files
 
+TransitPlan
+
 ## Dataprep
 
 Generate some JSON files for the client from GTFS files : `npm run data:generate`

@@ -52,10 +52,12 @@
     "suppressImplicitAnyIndexErrors": false,
     "typeRoots": ["node_modules/@types"],
     "target": "es6",
-
     "rootDirs": ["src/"],
     "jsx": "react",
-    "downlevelIteration": true
+    "downlevelIteration": true,
+    "paths": {
+      "@reticular/types": ["./../dataprep/types.d.ts"]
+    }
   },
   "include": ["src"]
 }

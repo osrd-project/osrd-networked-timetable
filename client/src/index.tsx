@@ -1,14 +1,18 @@
 import React from "react";
 import ReactDOM from "react-dom";
 
+import { AppContextProvider } from "./core/context";
 import App from "./views/App";
 import reportWebVitals from "./reportWebVitals";
 
+import "@sncf/bootstrap-sncf.metier/dist/bootstrap-sncf.min.css";
 import "./styles/index.scss";
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <AppContextProvider>
+      <App />
+    </AppContextProvider>
   </React.StrictMode>,
   document.getElementById("root"),
 );

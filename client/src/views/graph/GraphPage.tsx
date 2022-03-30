@@ -1,26 +1,18 @@
-import React, { FC, useState } from "react";
+import React, { FC } from "react";
 
-import { GraphContext } from "../../lib/context";
-import GraphContainer from "./GraphContainer";
-import { GraphState } from "../../lib/graph";
-import SidePanel from "./SidePanel";
+import { Layout } from "../layout/Layout";
+import { TitleBar } from "../../components/TitleBar";
+import { GraphContainer } from "./GraphContainer";
+import { SidePanel } from "./SidePanel";
 
-const GraphPage: FC = () => {
-  const [state, setState] = useState<GraphState>({});
-
+export const GraphPage: FC = () => {
   return (
-    <GraphContext.Provider
-      value={{
-        state,
-        setState,
-      }}
-    >
-      <main className="graph-page">
-        <SidePanel />
+    <Layout className="graph-page">
+      <SidePanel />
+      <div className="main">
+        <TitleBar title="Réseaux des lignes" />
         <GraphContainer />
-      </main>
-    </GraphContext.Provider>
+      </div>
+    </Layout>
   );
 };
-
-export default GraphPage;

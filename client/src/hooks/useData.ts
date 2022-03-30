@@ -1,13 +1,20 @@
 import { useEffect, useState } from "react";
-import { NodeDisplayData, EdgeDisplayData } from "sigma/types";
 import Graph from "graphology";
 import * as Papa from "papaparse";
 
+import { Route, Agency } from "@reticular/types";
+import { AppState, GraphNode, GraphEdge } from "../core/state";
 import project from "../utils/project";
-import { DATASET_NODES_PATH, DATASET_EDGES_PATH, DEFAULT_EDGE_COLOR, DEFAULT_NODE_COLOR, MAX_EDGE_SIZE, MAX_NODE_SIZE } from "../consts";
-
-export type GraphNode = Pick<NodeDisplayData, "label" | "x" | "y" | "size" | "color"> & { id: string, routes: Set<string> };
-export type GraphEdge = Pick<EdgeDisplayData, "size" | "color"> & { routes: Set<string> };
+import {
+  DATASET_AGENCIES_PATH,
+  DATASET_ROUTES_PATH,
+  DATASET_NODES_PATH,
+  DATASET_EDGES_PATH,
+  DEFAULT_EDGE_COLOR,
+  DEFAULT_NODE_COLOR,
+  MAX_EDGE_SIZE,
+  MAX_NODE_SIZE,
+} from "../consts";
 
 function downloadDataAnParseCsv<T>(url: string): Promise<Array<T>> {
   return new Promise((resolve, reject) => {
@@ -23,9 +30,7 @@ function downloadDataAnParseCsv<T>(url: string): Promise<Array<T>> {
   });
 }
 
-export interface Dataset {
-  graph: Graph<GraphNode, GraphEdge>;
-}
+type Dataset = Pick<AppState, "agencies" | "routes" | "graph">;
 
 async function prepareData(): Promise<Dataset> {
   const graph = new Graph<GraphNode, GraphEdge>({ multi: true, type: "directed", allowSelfLoops: true });
@@ -34,7 +39,18 @@ async function prepareData(): Promise<Dataset> {
   const data = await Promise.all([
     downloadDataAnParseCsv<any>(DATASET_NODES_PATH),
     downloadDataAnParseCsv<any>(DATASET_EDGES_PATH),
+    downloadDataAnParseCsv<Route>(DATASET_ROUTES_PATH),
+    downloadDataAnParseCsv<Agency>(DATASET_AGENCIES_PATH),
   ]);
+
+  // build agencies
+  const agencies = data[3] as Array<Agency>;
+
+  // build the index of routes
+  const routes = data[2].reduce((acc, curr) => {
+    acc[curr.id] = curr;
+    return acc;
+  }, {} as { [id: string]: Route });
 
   // build the graph
   data[0].forEach((node) => {
@@ -44,12 +60,12 @@ async function prepareData(): Promise<Dataset> {
       color: DEFAULT_NODE_COLOR,
       size: 1,
       ...project({ lat: node.lat as number, lng: node.lng as number }),
-      routes: new Set()
+      routeIds: new Set(),
     });
   });
   data[1].forEach((edge) => {
     graph.addEdgeWithKey(edge.id, edge.source, edge.target, {
-      routes: new Set<string>(edge.routes),
+      routeIds: new Set<string>(edge.routeIds.split(",")),
       size: Math.log(edge.frequency),
       color: DEFAULT_EDGE_COLOR,
     });
@@ -63,11 +79,15 @@ async function prepareData(): Promise<Dataset> {
     // Compute available routes
     graph.setNodeAttribute(
       node,
-      "routes",
-      graph.reduceEdges(node, (acc, _edge, attr) => {
-        attr.routes.forEach(routeId => acc.add(routeId));
-        return acc;
-      }, new Set<string>())
+      "routeIds",
+      graph.reduceEdges(
+        node,
+        (acc, _edge, attr) => {
+          attr.routeIds.forEach((routeId) => acc.add(routeId));
+          return acc;
+        },
+        new Set<string>(),
+      ),
     );
   });
 
@@ -90,7 +110,7 @@ async function prepareData(): Promise<Dataset> {
     graph.setEdgeAttribute(edge, "size", (attr.size * MAX_EDGE_SIZE) / maxEdgeSize);
   });
 
-  return { graph };
+  return { agencies, routes, graph };
 }
 
 export type IdleState = { type: "idle" };

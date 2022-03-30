@@ -1,66 +1,63 @@
-import { FC, useContext, useEffect } from "react";
+import { FC, useEffect } from "react";
 import { useRegisterEvents } from "@react-sigma/core";
+import { pull, uniq, debounce } from "lodash";
 
-import { DataContext, GraphContext } from "../../lib/context";
-import { pull, uniq } from "lodash";
+import { DEBOUNCE_TIME } from "../../consts";
+import { useSelector } from "../../hooks/useSelector";
+import { useAppState } from "../../hooks/useAppState";
 
-const EventsController: FC = () => {
-  const { graph } = useContext(DataContext);
-  const { setState } = useContext(GraphContext);
+export const EventsController: FC = () => {
   const registerEvents = useRegisterEvents();
+  const graph = useSelector((state) => state.graph);
+  const { setState } = useAppState();
 
   useEffect(() => {
     registerEvents({
-      enterNode({ node }) {
+      enterNode: debounce(({ node }) => {
         setState((state) => ({ ...state, hoveredNode: node }));
-      },
-      leaveNode() {
+      }, DEBOUNCE_TIME),
+      leaveNode: debounce(() => {
         setState((state) => ({ ...state, hoveredNode: undefined }));
-      },
-      enterEdge({ edge }) {
+      }, DEBOUNCE_TIME),
+      enterEdge: debounce(({ edge }) => {
         setState((state) => ({ ...state, hoveredEdge: edge }));
-      },
-      leaveEdge() {
+      }, DEBOUNCE_TIME),
+      leaveEdge: debounce(() => {
         setState((state) => ({ ...state, hoveredEdge: undefined }));
-      },
+      }, DEBOUNCE_TIME),
       clickNode({ node }) {
         setState((state) => {
           const selection = state.selection;
-
-          if (!selection || selection.type === "route") {
-            return { ...state, selection: { type: "stop", ids: [node] } };
-          } else if (selection.ids.includes(node)) {
-            return { ...state, selection: { type: "stop", ids: selection.ids.filter((id) => id !== node) } };
+          const routeIds = Array.from(graph.getNodeAttribute(node, "routeIds"));
+          if (!selection) {
+            return { ...state, selection: { routeIds } };
           } else {
-            return { ...state, selection: { type: "stop", ids: selection.ids.concat(node) } };
+            return { ...state, selection: { routeIds: uniq([...selection.routeIds, ...routeIds]) } };
           }
         });
       },
       clickEdge({ edge }) {
         setState((state) => {
+          const routeIds = Array.from(graph.getEdgeAttribute(edge, "routeIds"));
           const selection = state.selection;
-          const ids = Array.from(graph.getEdgeAttribute(edge, "routes"));
 
-          if (!selection || selection.type === "stop") {
-            return { ...state, selection: { type: "route", ids } };
+          if (!selection) {
+            return { ...state, selection: { routeIds } };
           } else {
-            const selectionIdsSet = new Set(selection.ids);
-
-            if (ids.every((id) => selectionIdsSet.has(id))) {
-              return { ...state, selection: { type: "route", ids: pull(selection.ids, ...ids).slice(0) } };
+            const selectionIdsSet = new Set(selection.routeIds);
+            if (routeIds.every((id) => selectionIdsSet.has(id))) {
+              return { ...state, selection: { routeIds: pull(selection.routeIds, ...routeIds).slice(0) } };
             } else {
-              return { ...state, selection: { type: "route", ids: uniq(selection.ids.concat(ids)) } };
+              return { ...state, selection: { routeIds: uniq(selection.routeIds.concat(routeIds)) } };
             }
           }
         });
       },
       clickStage() {
-        setState((state) => ({ ...state, selection: null }));
+        setState((state) => ({ ...state, selection: { routeIds: [] } }));
       },
     });
   }, [graph, registerEvents, setState]);
 
   return null;
 };
-
-export default EventsController;

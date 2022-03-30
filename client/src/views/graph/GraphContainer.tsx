@@ -1,16 +1,15 @@
-import React, { FC, useContext } from "react";
+import React, { FC } from "react";
 import { SigmaContainer } from "@react-sigma/core";
 
-import { DataContext } from "../../lib/context";
-import EventsController from "./EventsController";
-import SettingsController from "./SettingsController";
+import { useSelector } from "../../hooks/useSelector";
+import { EventsController } from "./EventsController";
+import { SettingsController } from "./SettingsController";
 
-const GraphContainer: FC = () => {
-  const dataset = useContext(DataContext);
-
+export const GraphContainer: FC = () => {
+  const graph = useSelector((state) => state.graph);
   return (
     <SigmaContainer
-      graph={dataset.graph}
+      graph={graph}
       initialSettings={{
         zIndex: true,
       }}
@@ -20,5 +19,3 @@ const GraphContainer: FC = () => {
     </SigmaContainer>
   );
 };
-
-export default GraphContainer;

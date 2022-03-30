@@ -1,27 +1,27 @@
-import React, { FC } from "react";
+import React, { FC, useEffect } from "react";
 
-import { useData } from "../lib/data";
-import { LoaderFill } from "../components/Loader";
-import { DataContext } from "../lib/context";
-import Routing from "./Routing";
+import { Routing } from "../core/routing";
+import { useData } from "../hooks/useData";
+import { useAppState } from "../hooks/useAppState";
+import { LoaderFillState } from "../components/Loader";
 
 const App: FC = () => {
   const dataState = useData();
+  const { setState } = useAppState();
 
-  if (dataState.type === "idle" || dataState.type === "loading") return <LoaderFill />;
-  if (dataState.type === "error")
-    return (
-      <div className="fill">
-        <p className="text-danger"> An error occurred: {dataState.error?.message || <i>no message</i>}</p>
-      </div>
-    );
-
-  const { dataset } = dataState;
+  useEffect(() => {
+    if (dataState.type === "ready") {
+      setState((state) => {
+        return { ...state, ...dataState.dataset, loading: 0 };
+      });
+    }
+  }, [dataState, setState]);
 
   return (
-    <DataContext.Provider value={dataset}>
+    <>
       <Routing />
-    </DataContext.Provider>
+      <LoaderFillState />
+    </>
   );
 };
 
