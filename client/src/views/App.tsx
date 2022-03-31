@@ -1,26 +1,35 @@
-import React, { FC, useEffect } from "react";
+import React, { FC, useEffect, useState } from "react";
+import { BrowserRouter } from "react-router-dom";
 
 import { Routing } from "../core/routing";
-import { useData } from "../hooks/useData";
+import { initialize } from "../core/state/init";
+
 import { useAppState } from "../hooks/useAppState";
 import { LoaderFillState } from "../components/Loader";
+import { NavBar } from "../components/NavBar";
 
 const App: FC = () => {
-  const dataState = useData();
-  const { setState } = useAppState();
+  const { dispatch, setState } = useAppState();
+  const [isInit, setIsInit] = useState<boolean>(false);
 
   useEffect(() => {
-    if (dataState.type === "ready") {
-      setState((state) => {
-        return { ...state, ...dataState.dataset, loading: 0 };
-      });
-    }
-  }, [dataState, setState]);
+    setIsInit(false);
+    dispatch({ type: "LOADING", value: true });
+    initialize()
+      .then((dataState) => {
+        setState((state) => ({ ...state, ...dataState }));
+        setIsInit(true);
+      })
+      .finally(() => dispatch({ type: "LOADING", value: false }));
+  }, []);
 
   return (
     <>
-      <Routing />
-      <LoaderFillState />
+      <BrowserRouter>
+        {isInit && <Routing />}
+        <LoaderFillState />
+        <NavBar />
+      </BrowserRouter>
     </>
   );
 };

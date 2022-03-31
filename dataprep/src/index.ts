@@ -2,10 +2,10 @@ import { config } from "./config";
 import { Sqlite } from "./sqlite";
 import { createExportFolder, cleanExportFolder } from "./utils";
 import { importGtfs } from "./import/gtfs";
-import { exportAgenciesList } from "./export/agenciesList";
-import { exportStopsNetwork } from "./export/stopsNetwork";
-import { exportRoutesList } from "./export/routesList";
-import { exportRoutes } from "./export/routes";
+
+import exportTransitPlans from "./export/transitPlans";
+import exportStops from "./export/stops";
+import exportTrips from "./export/trips";
 
 async function run(): Promise<void> {
   // reset the db
@@ -18,14 +18,13 @@ async function run(): Promise<void> {
   }
 
   // reset export folder
-  await cleanExportFolder();
+  if (!config.exportClean) await cleanExportFolder();
   await createExportFolder();
 
   // exports
-  await exportStopsNetwork();
-  await exportRoutesList();
-  await exportAgenciesList();
-  await exportRoutes();
+  await exportTransitPlans();
+  await exportStops();
+  await exportTrips();
 }
 
 run();

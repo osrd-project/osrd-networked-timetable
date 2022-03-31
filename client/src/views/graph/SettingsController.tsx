@@ -1,58 +1,98 @@
-import { FC, useEffect, useMemo } from "react";
+import { FC, useEffect, useMemo, useCallback } from "react";
 import { useSigma } from "@react-sigma/core";
 import { Attributes } from "graphology-types";
 import { Settings } from "sigma/settings";
-import uniq from "lodash/uniq";
+import intersection from "lodash/intersection";
 
-import { GREYED_NODE_COLOR, GREYED_EDGE_COLOR } from "../../consts";
-import { useAppState } from "./../../hooks/useAppState";
-import { AppState } from "./../../core/state";
+import { useSelector } from "../../hooks/useSelector";
+import { AppState } from "../../core/state/types";
+import { config } from "../../config";
 
-export interface Highlights {
-  routeIds: string[];
+export interface GraphState {
+  tpIds: string[];
+  graphSelection: AppState["graphSelection"];
+  graphSelectionTpIds: string[];
 }
 
-function getReducers(
-  _state: AppState,
-  highlight: Highlights,
-): { node: NonNullable<Settings["nodeReducer"]>; edge: NonNullable<Settings["edgeReducer"]> } {
+function getReducers(graphState: GraphState): {
+  node: NonNullable<Settings["nodeReducer"]>;
+  edge: NonNullable<Settings["edgeReducer"]>;
+} {
   return {
-    node(_node: string, data: Attributes) {
+    node(node: string, data: Attributes) {
       const res = { ...data };
-
-      // if there no highlight => leave has default
-      if (highlight.routeIds.length === 0) return res;
-
-      // if highlighted
-      const shouldBeHilighted = highlight.routeIds.some((id) => data.routeIds.has(id));
-      if (shouldBeHilighted === true) {
-        res.highlighted = true;
-      } else {
-        res.highlighted = false;
-        res.color = GREYED_NODE_COLOR;
-        res.label = null;
-        res.zIndex = -1;
+      if (
+        (graphState.graphSelection || []).length === 0 &&
+        graphState.graphSelectionTpIds.length === 0 &&
+        graphState.tpIds.length === 0
+      ) {
+        return res;
       }
 
+      // If Graph item is selected
+      if ((graphState.graphSelection || []).findIndex((e) => e.id === node) > -1) {
+        res.color = config.graph.selectedNodeColor;
+        res.highlighted = true;
+        res.zIndex = 10;
+        return res;
+      }
+
+      // If appears in the app selection
+      if (graphState.tpIds.some((id) => data.transitPlanIds.has(id))) {
+        res.color = config.graph.defaultNodeColor;
+        res.zIndex = 1;
+        return res;
+      }
+
+      // If appears in the graph selection
+      if (graphState.graphSelectionTpIds.some((id) => data.transitPlanIds.has(id))) {
+        res.color = config.graph.selectedNodeColor;
+        res.zIndex = 2;
+        return res;
+      }
+
+      // default
+      res.color = config.graph.greyedNodeColor;
+      res.label = null;
+      res.zIndex = -1;
       return res;
     },
-    edge(_edge: string, data: Attributes) {
+    edge(edge: string, data: Attributes) {
       const res = { ...data };
-
-      // if there no highlight => leave has default
-      if (highlight.routeIds.length === 0) return res;
-
-      // if highlighted
-      const shouldBeHilighted = highlight.routeIds.some((id) => data.routeIds.has(id));
-      if (shouldBeHilighted === true) {
-        res.highlighted = true;
-      } else {
-        // Default
-        res.color = GREYED_EDGE_COLOR;
-        res.label = null;
-        res.zIndex = -1;
+      if (
+        (graphState.graphSelection || []).length === 0 &&
+        graphState.graphSelectionTpIds.length === 0 &&
+        graphState.tpIds.length === 0
+      ) {
+        return res;
       }
 
+      // If Graph item is selected
+      if ((graphState.graphSelection || []).findIndex((e) => e.id === edge) > -1) {
+        res.color = config.graph.selectedEdgeColor;
+        res.highlighted = true;
+        res.zIndex = 10;
+        return res;
+      }
+
+      // If appears in the app selection
+      if (graphState.tpIds.some((id) => data.transitPlanIds.has(id))) {
+        res.color = config.graph.defaultEdgeColor;
+        res.zIndex = 1;
+        return res;
+      }
+
+      // If appears in the graph selection
+      if (graphState.graphSelectionTpIds.some((id) => data.transitPlanIds.has(id))) {
+        res.color = config.graph.selectedEdgeColor;
+        res.zIndex = 2;
+        return res;
+      }
+
+      // default
+      res.color = config.graph.greyedEdgeColor;
+      res.label = null;
+      res.zIndex = -1;
       return res;
     },
   };
@@ -60,27 +100,47 @@ function getReducers(
 
 export const SettingsController: FC = () => {
   const sigma = useSigma();
-  const { state } = useAppState();
+  const selection = useSelector((state) => state.selection);
+  const hoveredNode = useSelector((state) => state.hoveredNode);
+  const hoveredEdge = useSelector((state) => state.hoveredEdge);
+  const graphSelection = useSelector((state) => state.graphSelection);
 
-  const highlights = useMemo(() => {
-    const res: Highlights = { routeIds: [] };
-    // Adding routeIds from the hovered element in the highlighted routes
-    res.routeIds = uniq([
-      ...(state.selection ? state.selection.routeIds : []),
-      ...(state.hoveredNode ? Array.from(state.graph.getNodeAttribute(state.hoveredNode, "routeIds")) : []),
-      ...(state.hoveredEdge ? Array.from(state.graph.getEdgeAttribute(state.hoveredEdge, "routeIds")) : []),
-    ]);
+  const getGraphItemTpIds = useCallback(
+    (item: { type: "node" | "edge"; id: string }): Array<string> => {
+      if (item.type === "node") return Array.from(sigma.getGraph().getNodeAttribute(item.id, "transitPlanIds"));
+      else return Array.from(sigma.getGraph().getEdgeAttribute(item.id, "transitPlanIds"));
+    },
+    [sigma],
+  );
+
+  const graphState = useMemo(() => {
+    let graphSelectionTpIds: Array<string> = [];
+
+    if (hoveredNode) graphSelectionTpIds = getGraphItemTpIds({ type: "node", id: hoveredNode });
+    if (hoveredEdge) graphSelectionTpIds = getGraphItemTpIds({ type: "edge", id: hoveredEdge });
+
+    if (graphSelection && graphSelection.length > 0) {
+      graphSelectionTpIds = [
+        ...graphSelectionTpIds,
+        ...intersection(...graphSelection.map((e) => getGraphItemTpIds(e))),
+      ];
+    }
+
+    const res: GraphState = {
+      tpIds: selection ? selection.transitPlanIds : [],
+      graphSelection,
+      graphSelectionTpIds,
+    };
     return res;
-  }, [state]);
+  }, [selection, hoveredNode, hoveredEdge, graphSelection, sigma, getGraphItemTpIds]);
 
   useEffect(() => {
-    console.log("Update reducers", state);
-    const { node, edge } = getReducers(state, highlights);
+    const { node, edge } = getReducers(graphState);
 
     sigma.setSetting("nodeReducer", node);
     sigma.setSetting("edgeReducer", edge);
     sigma.refresh();
-  }, [state, highlights, sigma]);
+  }, [graphState, sigma]);
 
   return null;
 };

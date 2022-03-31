@@ -1,53 +1,5 @@
 .graph-page {
-  margin: 0;
-  padding: 0;
-  position: absolute;
-  width: 100vw;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-
-  .mastcontainer {
-    flex-grow: 1;
-    flex-shrink: 1;
-
-    display: flex;
-    flex-direction: row;
-    align-items: stretch;
-    height: 100%;
-    padding-left: 0;
-
-    .main {
-      position: relative;
-      flex-grow: 1;
-      padding: 0;
-      width: auto;
-      display: flex;
-      flex-direction: column;
-
-      .react-sigma {
-        position: relative;
-        inset: 0;
-        flex-grow: 1;
-        width: 100%;
-      }
-      .actionbar {
-        position: relative;
-        top: 0;
-        width: 100%;
-        flex-grow: 0;
-      }
-    }
-
-    .mastnav {
-      position: relative;
-      flex-shrink: 0;
-      height: 100%;
-      overflow-y: auto;
-      width: auto;
-      padding: 1rem;
-      color: #fff;
-    }
+  .react-sigma {
+    height: calc(100vh - 10em);
   }
 }

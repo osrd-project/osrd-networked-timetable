@@ -1,8 +1,6 @@
 import { FC, useEffect } from "react";
 import { useRegisterEvents } from "@react-sigma/core";
-import { pull, uniq, debounce } from "lodash";
 
-import { DEBOUNCE_TIME } from "../../consts";
 import { useSelector } from "../../hooks/useSelector";
 import { useAppState } from "../../hooks/useAppState";
 
@@ -13,48 +11,45 @@ export const EventsController: FC = () => {
 
   useEffect(() => {
     registerEvents({
-      enterNode: debounce(({ node }) => {
+      enterNode: ({ node }) => {
         setState((state) => ({ ...state, hoveredNode: node }));
-      }, DEBOUNCE_TIME),
-      leaveNode: debounce(() => {
+      },
+      leaveNode: () => {
         setState((state) => ({ ...state, hoveredNode: undefined }));
-      }, DEBOUNCE_TIME),
-      enterEdge: debounce(({ edge }) => {
+      },
+      enterEdge: ({ edge }) => {
         setState((state) => ({ ...state, hoveredEdge: edge }));
-      }, DEBOUNCE_TIME),
-      leaveEdge: debounce(() => {
+      },
+      leaveEdge: () => {
         setState((state) => ({ ...state, hoveredEdge: undefined }));
-      }, DEBOUNCE_TIME),
+      },
       clickNode({ node }) {
         setState((state) => {
-          const selection = state.selection;
-          const routeIds = Array.from(graph.getNodeAttribute(node, "routeIds"));
-          if (!selection) {
-            return { ...state, selection: { routeIds } };
-          } else {
-            return { ...state, selection: { routeIds: uniq([...selection.routeIds, ...routeIds]) } };
-          }
+          const newState = { ...state };
+          if (!newState.graphSelection) newState.graphSelection = [];
+          if (newState.graphSelection.findIndex((e) => e.id === node) > 0)
+            newState.graphSelection = [...newState.graphSelection.filter((e) => e.id !== node)];
+          else newState.graphSelection = [...newState.graphSelection, { type: "node", id: node }];
+          return newState;
         });
       },
       clickEdge({ edge }) {
         setState((state) => {
-          const routeIds = Array.from(graph.getEdgeAttribute(edge, "routeIds"));
-          const selection = state.selection;
-
-          if (!selection) {
-            return { ...state, selection: { routeIds } };
-          } else {
-            const selectionIdsSet = new Set(selection.routeIds);
-            if (routeIds.every((id) => selectionIdsSet.has(id))) {
-              return { ...state, selection: { routeIds: pull(selection.routeIds, ...routeIds).slice(0) } };
-            } else {
-              return { ...state, selection: { routeIds: uniq(selection.routeIds.concat(routeIds)) } };
-            }
-          }
+          const newState = { ...state };
+          if (!newState.graphSelection) newState.graphSelection = [];
+          if (newState.graphSelection.findIndex((e) => e.id === edge) > 0)
+            newState.graphSelection = [...newState.graphSelection.filter((e) => e.id !== edge)];
+          else newState.graphSelection = [...newState.graphSelection, { type: "edge", id: edge }];
+          return newState;
         });
       },
       clickStage() {
-        setState((state) => ({ ...state, selection: { routeIds: [] } }));
+        setState((state) => ({
+          ...state,
+          hoveredNode: undefined,
+          hoveredEdge: undefined,
+          graphSelection: [],
+        }));
       },
     });
   }, [graph, registerEvents, setState]);

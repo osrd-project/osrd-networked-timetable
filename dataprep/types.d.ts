@@ -46,4 +46,13 @@ declare module "@reticular/types" {
   }
 
   export type RouteFull = Route & { network: SerializedGraph; trips: Array<Trip> };
+
+  export interface TransitPlan {
+    id: string;
+    name: string;
+    // ordered list of stops
+    stopIds: Array<string>;
+    // list of trip ids
+    tripIds: Array<string>;
+  }
 }
