@@ -23,7 +23,5 @@ export interface AppState {
     transitPlanIds: Array<string>;
   };
   graph: Graph<GraphNode, GraphEdge>;
-  hoveredNode?: string;
-  hoveredEdge?: string;
   graphSelection?: Array<{ type: "node" | "edge"; id: string }>;
 }

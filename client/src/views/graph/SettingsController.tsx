@@ -9,8 +9,12 @@ import { AppState } from "../../core/state/types";
 import { config } from "../../config";
 
 export interface GraphState {
+  // transit plan that are (already) selected in the app
   tpIds: string[];
+  // list of graph item selected (nodes & edges)
   graphSelection: AppState["graphSelection"];
+  // list of transit plan that match the intersection of
+  // the graph selection
   graphSelectionTpIds: string[];
 }
 
@@ -40,14 +44,14 @@ function getReducers(graphState: GraphState): {
       // If appears in the app selection
       if (graphState.tpIds.some((id) => data.transitPlanIds.has(id))) {
         res.color = config.graph.defaultNodeColor;
-        res.zIndex = 1;
+        res.zIndex = 2;
         return res;
       }
 
       // If appears in the graph selection
       if (graphState.graphSelectionTpIds.some((id) => data.transitPlanIds.has(id))) {
         res.color = config.graph.selectedNodeColor;
-        res.zIndex = 2;
+        res.zIndex = 1;
         return res;
       }
 
@@ -78,14 +82,14 @@ function getReducers(graphState: GraphState): {
       // If appears in the app selection
       if (graphState.tpIds.some((id) => data.transitPlanIds.has(id))) {
         res.color = config.graph.defaultEdgeColor;
-        res.zIndex = 1;
+        res.zIndex = 2;
         return res;
       }
 
       // If appears in the graph selection
       if (graphState.graphSelectionTpIds.some((id) => data.transitPlanIds.has(id))) {
         res.color = config.graph.selectedEdgeColor;
-        res.zIndex = 2;
+        res.zIndex = 1;
         return res;
       }
 
@@ -101,8 +105,6 @@ function getReducers(graphState: GraphState): {
 export const SettingsController: FC = () => {
   const sigma = useSigma();
   const selection = useSelector((state) => state.selection);
-  const hoveredNode = useSelector((state) => state.hoveredNode);
-  const hoveredEdge = useSelector((state) => state.hoveredEdge);
   const graphSelection = useSelector((state) => state.graphSelection);
 
   const getGraphItemTpIds = useCallback(
@@ -114,11 +116,8 @@ export const SettingsController: FC = () => {
   );
 
   const graphState = useMemo(() => {
+    // graph selection
     let graphSelectionTpIds: Array<string> = [];
-
-    if (hoveredNode) graphSelectionTpIds = getGraphItemTpIds({ type: "node", id: hoveredNode });
-    if (hoveredEdge) graphSelectionTpIds = getGraphItemTpIds({ type: "edge", id: hoveredEdge });
-
     if (graphSelection && graphSelection.length > 0) {
       graphSelectionTpIds = [
         ...graphSelectionTpIds,
@@ -132,7 +131,7 @@ export const SettingsController: FC = () => {
       graphSelectionTpIds,
     };
     return res;
-  }, [selection, hoveredNode, hoveredEdge, graphSelection, sigma, getGraphItemTpIds]);
+  }, [selection, graphSelection, sigma, getGraphItemTpIds]);
 
   useEffect(() => {
     const { node, edge } = getReducers(graphState);

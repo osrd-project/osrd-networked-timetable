@@ -11,25 +11,15 @@ export const EventsController: FC = () => {
 
   useEffect(() => {
     registerEvents({
-      enterNode: ({ node }) => {
-        setState((state) => ({ ...state, hoveredNode: node }));
-      },
-      leaveNode: () => {
-        setState((state) => ({ ...state, hoveredNode: undefined }));
-      },
-      enterEdge: ({ edge }) => {
-        setState((state) => ({ ...state, hoveredEdge: edge }));
-      },
-      leaveEdge: () => {
-        setState((state) => ({ ...state, hoveredEdge: undefined }));
-      },
       clickNode({ node }) {
         setState((state) => {
           const newState = { ...state };
           if (!newState.graphSelection) newState.graphSelection = [];
-          if (newState.graphSelection.findIndex((e) => e.id === node) > 0)
+          if (newState.graphSelection.findIndex((e) => e.id === node) > -1) {
             newState.graphSelection = [...newState.graphSelection.filter((e) => e.id !== node)];
-          else newState.graphSelection = [...newState.graphSelection, { type: "node", id: node }];
+          } else {
+            newState.graphSelection = [...newState.graphSelection, { type: "node", id: node }];
+          }
           return newState;
         });
       },

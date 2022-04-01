@@ -28,15 +28,8 @@ export const GraphSelection: FC = () => {
 
   return (
     <>
-      {transitPlans.length > 0 && (
-        <SidePanel
-          close={() =>
-            setState((state) => ({
-              ...state,
-              graphSelection: [],
-            }))
-          }
-        >
+      {(graphSelection || []).length > 0 && (
+        <SidePanel>
           <div className="box">
             <div className="box-header">
               <h2>Graph Selection</h2>
