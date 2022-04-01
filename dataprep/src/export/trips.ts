@@ -31,7 +31,9 @@ export default async function exportTrips(): Promise<void> {
       ORDER BY headsign, id`);
 
   // For each trip, we retrieve the list of stops with their times
+  let i = 0;
   for (let trip of trips) {
+    i++;
     trip.stops = await sqlite.db().all<Array<StopTime>>(`
           SELECT
             COALESCE(stops.parent_station, stops.stop_id) as id,
@@ -47,7 +49,7 @@ export default async function exportTrips(): Promise<void> {
             stop_times.stop_sequence ASC
       `);
     await writeFile(JSON.stringify(trip), `trips/${trip.id}.json`);
-    console.log(`Exporting trip ${trip.id} - Done`);
+    console.log(`Exporting trip ${id} / ${trips.length}`);
   }
   console.log("Exporting trips - Done");
 }

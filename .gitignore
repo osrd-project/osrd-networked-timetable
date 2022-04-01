@@ -9,8 +9,8 @@ node_modules
 /coverage
 
 # production
-/build
-/lib
+/client/build
+/dataprep/lib
 
 npm-debug.log*
 yarn-debug.log*

@@ -2,6 +2,7 @@
   "name": "reticular",
   "version": "0.1.0",
   "private": true,
+  "homepage": "/osrd-networked-timetable",
   "dependencies": {
     "@mapbox/sphericalmercator": "^1.2.0",
     "@react-sigma/core": "^2.0.2",

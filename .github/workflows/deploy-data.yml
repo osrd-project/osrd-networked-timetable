@@ -1,0 +1,36 @@
+name: deploy-data
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "dataprep/*"
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Dataprep install
+        run: |
+          cd dataprep
+          npm install
+
+      - name: Download data
+        run: |
+          cd import
+          wget https://eu.ftp.opendatasoft.com/sncf/gtfs/transilien-gtfs.zip
+          wget https://eu.ftp.opendatasoft.com/sncf/gtfs/export_gtfs_voyages.zip
+          wget https://eu.ftp.opendatasoft.com/sncf/gtfs/export-intercites-gtfs-last.zip
+
+      - name: Generate data
+        run: |
+          cd ..
+          npm run data:generate
+
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@v4.2.5
+        with:
+          branch: gh-pages # The branch the action should deploy to.
+          folder: client/public # The folder the action should deploy.
