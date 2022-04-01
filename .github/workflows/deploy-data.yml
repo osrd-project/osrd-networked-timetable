@@ -19,14 +19,14 @@ jobs:
 
       - name: Download data
         run: |
-          cd import
+          cd dataprep/import
           wget https://eu.ftp.opendatasoft.com/sncf/gtfs/transilien-gtfs.zip
           wget https://eu.ftp.opendatasoft.com/sncf/gtfs/export_gtfs_voyages.zip
           wget https://eu.ftp.opendatasoft.com/sncf/gtfs/export-intercites-gtfs-last.zip
 
       - name: Generate data
         run: |
-          cd ..
+          cd dataprep
           npm run data:generate
 
       - name: Deploy 🚀
