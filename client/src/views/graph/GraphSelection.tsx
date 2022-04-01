@@ -75,6 +75,7 @@ export const GraphSelection: FC = () => {
                   setState((state) => ({
                     ...state,
                     selection: {
+                      ...state.selection,
                       transitPlanIds: uniq([...state.selection.transitPlanIds, ...selectedTransitPlan]),
                     },
                     graphSelection: [],

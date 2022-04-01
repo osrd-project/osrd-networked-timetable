@@ -9,8 +9,8 @@ export const GraphPage: FC = () => {
   return (
     <Layout className="graph-page">
       <TitleBar title="Réseaux des lignes" />
-      <GraphContainer />
       <GraphSelection />
+      <GraphContainer />
     </Layout>
   );
 };

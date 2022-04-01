@@ -34,7 +34,10 @@ export const Selection: FC = () => {
                     onClick={() => {
                       setState((state) => ({
                         ...state,
-                        selection: { transitPlanIds: state.selection.transitPlanIds.filter((e) => e !== id) },
+                        selection: {
+                          ...state.selection,
+                          transitPlanIds: state.selection.transitPlanIds.filter((e) => e !== id),
+                        },
                       }));
                     }}
                   >
@@ -51,7 +54,15 @@ export const Selection: FC = () => {
         <button
           disabled={transitPlanIds.length === 0}
           className="btn btn-danger"
-          onClick={() => setState((state) => ({ ...state, selection: { transitPlanIds: [] } }))}
+          onClick={() =>
+            setState((state) => ({
+              ...state,
+              selection: {
+                ...state.selection,
+                transitPlanIds: [],
+              },
+            }))
+          }
         >
           Tout supprimer
         </button>

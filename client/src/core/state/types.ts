@@ -20,6 +20,7 @@ export interface AppState {
   transitPlans: { [key: string]: TransitPlan };
   loading: number;
   selection: {
+    isOpened: boolean;
     transitPlanIds: Array<string>;
   };
   graph: Graph<GraphNode, GraphEdge>;

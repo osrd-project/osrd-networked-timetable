@@ -13,7 +13,7 @@ export const defaultState: AppState = {
   stops: {},
   transitPlans: {},
   loading: 0,
-  selection: { transitPlanIds: [] },
+  selection: { isOpened: false, transitPlanIds: [] },
   graph: new Graph(),
 };
 

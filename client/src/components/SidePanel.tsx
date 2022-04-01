@@ -3,9 +3,7 @@ import { useOnClickOutside } from "../hooks/useOnClickOutside";
 
 export const SidePanel: FC<{ close?: () => void }> = ({ children, close }) => {
   const ref = useRef<HTMLDivElement | null>(null);
-  useOnClickOutside(ref, () => {
-    if (close) close();
-  });
+  useOnClickOutside(ref, close);
 
   return (
     <div ref={ref} className="sidepanel">

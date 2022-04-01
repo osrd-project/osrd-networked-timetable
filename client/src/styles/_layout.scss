@@ -1,17 +1,26 @@
 #app-root {
+  .mastheader {
+    height: 4em;
+  }
   .mastcontainer {
+    padding-top: 4em;
     background-color: #fff;
     .actionbar {
       top: 0;
       position: relative;
       width: 100%;
       margin-bottom: 1em;
+      z-index: 1054;
+      height: 4em;
     }
 
     > .row {
       margin: 0;
       width: 100%;
     }
+  }
+  .masternav {
+    z-index: 1056;
   }
   .mastfooter {
     position: fixed;

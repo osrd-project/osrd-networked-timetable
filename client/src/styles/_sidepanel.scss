@@ -1,13 +1,14 @@
 .sidepanel {
   position: fixed;
   top: 4em;
+  left: 0;
   left: 6.25rem;
   max-width: 40vw;
-  min-width: 20vw;
+  min-width: 25vw;
   height: calc(100vh - 4em);
   background-color: lighten($primary, 5%);
   opacity: 0.9;
-  z-index: 9999;
+  z-index: 1055;
   color: #fff;
 
   .sidepanel-close {

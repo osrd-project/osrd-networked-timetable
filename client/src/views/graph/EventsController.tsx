@@ -11,14 +11,14 @@ export const EventsController: FC = () => {
 
   useEffect(() => {
     registerEvents({
-      clickNode({ node }) {
+      clickNode(event) {
         setState((state) => {
           const newState = { ...state };
           if (!newState.graphSelection) newState.graphSelection = [];
-          if (newState.graphSelection.findIndex((e) => e.id === node) > -1) {
-            newState.graphSelection = [...newState.graphSelection.filter((e) => e.id !== node)];
+          if (newState.graphSelection.findIndex((e) => e.id === event.node) > -1) {
+            newState.graphSelection = [...newState.graphSelection.filter((e) => e.id !== event.node)];
           } else {
-            newState.graphSelection = [...newState.graphSelection, { type: "node", id: node }];
+            newState.graphSelection = [...newState.graphSelection, { type: "node", id: event.node }];
           }
           return newState;
         });
