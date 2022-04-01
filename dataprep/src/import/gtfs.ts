@@ -11,9 +11,7 @@ import { Sqlite } from "../sqlite";
  */
 export async function importGtfs(): Promise<void> {
   const sqlite = await Sqlite.getInstance();
-
   const files = fs.readdirSync(config.importPath);
-
   await Promise.all(
     files
       .filter((f) => f.endsWith(".zip"))
