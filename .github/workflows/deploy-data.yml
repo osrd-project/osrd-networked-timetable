@@ -23,6 +23,7 @@ jobs:
           wget https://eu.ftp.opendatasoft.com/sncf/gtfs/transilien-gtfs.zip
           wget https://eu.ftp.opendatasoft.com/sncf/gtfs/export_gtfs_voyages.zip
           wget https://eu.ftp.opendatasoft.com/sncf/gtfs/export-intercites-gtfs-last.zip
+          wget https://eu.ftp.opendatasoft.com/sncf/gtfs/export-ter-gtfs-last.zip
 
       - name: Generate data
         run: |
