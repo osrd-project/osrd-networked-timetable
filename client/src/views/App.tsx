@@ -10,23 +10,27 @@ import { NavBar } from "../components/NavBar";
 
 const App: FC = () => {
   const { dispatch, setState } = useAppState();
-  const [isInit, setIsInit] = useState<boolean>(false);
+  const [status, setStatus] = useState<null | boolean>(null);
 
   useEffect(() => {
-    setIsInit(false);
-    dispatch({ type: "LOADING", value: true });
-    initialize()
-      .then((dataState) => {
-        setState((state) => ({ ...state, ...dataState }));
-        setIsInit(true);
-      })
-      .finally(() => dispatch({ type: "LOADING", value: false }));
-  }, []);
+    if (status === null) {
+      setStatus(false);
+      dispatch({ type: "LOADING", value: true });
+      initialize()
+        .then((dataState) => {
+          setState((state) => ({ ...state, ...dataState }));
+        })
+        .finally(() => {
+          dispatch({ type: "LOADING", value: false });
+          setStatus(true);
+        });
+    }
+  }, [dispatch, setState, status]);
 
   return (
     <>
       <BrowserRouter>
-        {isInit && <Routing />}
+        {status === true && <Routing />}
         <LoaderFillState />
         <NavBar />
       </BrowserRouter>

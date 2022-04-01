@@ -131,7 +131,7 @@ export const SettingsController: FC = () => {
       graphSelectionTpIds,
     };
     return res;
-  }, [selection, graphSelection, sigma, getGraphItemTpIds]);
+  }, [selection, graphSelection, getGraphItemTpIds]);
 
   useEffect(() => {
     const { node, edge } = getReducers(graphState);
