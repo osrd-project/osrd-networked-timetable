@@ -31,7 +31,7 @@ export default async function exportTrips(): Promise<void> {
       ORDER BY headsign, id`);
 
   // For each trip, we retrieve the list of stops with their times
-  let i = 0;
+  let i = 0; //just and index to know where we are in the total export
   for (let trip of trips) {
     i++;
     trip.stops = await sqlite.db().all<Array<StopTime>>(`
