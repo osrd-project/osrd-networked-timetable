@@ -49,7 +49,7 @@ export default async function exportTrips(): Promise<void> {
             stop_times.stop_sequence ASC
       `);
     await writeFile(JSON.stringify(trip), `trips/${trip.id}.json`);
-    console.log(`Exporting trip ${id} / ${trips.length}`);
+    console.log(`Exporting trip ${i} / ${trips.length}`);
   }
   console.log("Exporting trips - Done");
 }
