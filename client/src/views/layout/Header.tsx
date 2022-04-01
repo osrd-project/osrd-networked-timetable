@@ -5,8 +5,8 @@ export const Header: FC = () => {
   return (
     <div className="mastheader">
       <div className="mastheader-logo">
-        <Link to="/" title="Accueil">
-          <img alt="SNCF" src="/assets/img/sncf-logo.png" width="70" />
+        <Link to={process.env.PUBLIC_URL} title="Accueil">
+          <img alt="SNCF" src={`${process.env.PUBLIC_URL}/assets/img/sncf-logo.png`} width="70" />
         </Link>
       </div>
       <header role="banner" className="mastheader-title d-none d-xl-block">
