@@ -78,6 +78,7 @@ export async function initialize(): Promise<Partial<AppState>> {
             attr.size = attr.transitPlanIds.size;
             return attr;
           });
+        prev = stop;
       });
     }
   });
