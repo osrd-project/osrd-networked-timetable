@@ -34,4 +34,4 @@ jobs:
         with:
           branch: gh-pages # The branch the action should deploy to.
           folder: client/public/data # The folder the action should deploy.
-          target-folder: "/data"
+          target-folder: data
