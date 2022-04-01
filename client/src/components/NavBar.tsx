@@ -24,7 +24,7 @@ export const NavBar: FC = () => {
         </li>
       </ul>
       {favOpened && (
-        <SidePanel>
+        <SidePanel close={() => setFavOpened(false)}>
           <Selection />
         </SidePanel>
       )}
