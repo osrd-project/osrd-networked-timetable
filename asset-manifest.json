@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/osrd-networked-timetable/static/css/main.5bfdb1a7.css",
-    "main.js": "/osrd-networked-timetable/static/js/main.1608127a.js",
+    "main.js": "/osrd-networked-timetable/static/js/main.d1c589b4.js",
     "static/js/787.b64a26b1.chunk.js": "/osrd-networked-timetable/static/js/787.b64a26b1.chunk.js",
     "static/media/icons.svg": "/osrd-networked-timetable/static/media/icons.f1fc29111f4ff2718015.svg",
     "static/media/avenir-book.woff": "/osrd-networked-timetable/static/media/avenir-book.35e18778c48be70776f2.woff",
@@ -14,11 +14,11 @@
     "static/media/avenir-medium.woff": "/osrd-networked-timetable/static/media/avenir-medium.2dbfe1d8c365b6ffe51a.woff",
     "index.html": "/osrd-networked-timetable/index.html",
     "main.5bfdb1a7.css.map": "/osrd-networked-timetable/static/css/main.5bfdb1a7.css.map",
-    "main.1608127a.js.map": "/osrd-networked-timetable/static/js/main.1608127a.js.map",
+    "main.d1c589b4.js.map": "/osrd-networked-timetable/static/js/main.d1c589b4.js.map",
     "787.b64a26b1.chunk.js.map": "/osrd-networked-timetable/static/js/787.b64a26b1.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.5bfdb1a7.css",
-    "static/js/main.1608127a.js"
+    "static/js/main.d1c589b4.js"
   ]
 }
