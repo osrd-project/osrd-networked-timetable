@@ -1,0 +1,24 @@
+{
+  "files": {
+    "main.css": "/osrd-networked-timetable/static/css/main.5bfdb1a7.css",
+    "main.js": "/osrd-networked-timetable/static/js/main.2ae98bc3.js",
+    "static/js/787.b64a26b1.chunk.js": "/osrd-networked-timetable/static/js/787.b64a26b1.chunk.js",
+    "static/media/icons.svg": "/osrd-networked-timetable/static/media/icons.f1fc29111f4ff2718015.svg",
+    "static/media/avenir-book.woff": "/osrd-networked-timetable/static/media/avenir-book.35e18778c48be70776f2.woff",
+    "static/media/icons.eot": "/osrd-networked-timetable/static/media/icons.5dd374e3d98e5c5b962d.eot",
+    "static/media/icons.ttf": "/osrd-networked-timetable/static/media/icons.8e7caca6712d1d1e3fc3.ttf",
+    "static/media/avenir-lighter.woff": "/osrd-networked-timetable/static/media/avenir-lighter.c702fe7404b3d530e847.woff",
+    "static/media/avenir-black.woff": "/osrd-networked-timetable/static/media/avenir-black.86ff03bb387801d720d5.woff",
+    "static/media/icons.woff": "/osrd-networked-timetable/static/media/icons.fb91afd346f3c9044a4d.woff",
+    "static/media/icons.woff2": "/osrd-networked-timetable/static/media/icons.4e45a7d5fde214ec02a5.woff2",
+    "static/media/avenir-medium.woff": "/osrd-networked-timetable/static/media/avenir-medium.2dbfe1d8c365b6ffe51a.woff",
+    "index.html": "/osrd-networked-timetable/index.html",
+    "main.5bfdb1a7.css.map": "/osrd-networked-timetable/static/css/main.5bfdb1a7.css.map",
+    "main.2ae98bc3.js.map": "/osrd-networked-timetable/static/js/main.2ae98bc3.js.map",
+    "787.b64a26b1.chunk.js.map": "/osrd-networked-timetable/static/js/787.b64a26b1.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.5bfdb1a7.css",
+    "static/js/main.2ae98bc3.js"
+  ]
+}
