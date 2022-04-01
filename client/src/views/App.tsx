@@ -29,7 +29,7 @@ const App: FC = () => {
 
   return (
     <>
-      <BrowserRouter>
+      <BrowserRouter basename={process.env.PUBLIC_URL}>
         {status === true && <Routing />}
         <LoaderFillState />
         <NavBar />
